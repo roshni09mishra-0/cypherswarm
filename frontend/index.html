@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CypherSwarm — Autonomous Company Brain | FalkorDB</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Editorial Serif + Clean Sans (Kinsta Typography) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --kinsta-bg: #FAF7F4;
+      --kinsta-dark: #0D1117;
+      --kinsta-charcoal: #16181D;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--kinsta-bg);
+      color: var(--kinsta-charcoal);
+    }
+
+    .font-serif-headline {
+      font-family: var(--font-serif);
+      letter-spacing: -0.02em;
+    }
+
+    .font-mono-code {
+      font-family: var(--font-mono);
+    }
+
+    /* Kinsta Pill Buttons */
+    .kinsta-btn-primary {
+      background-color: var(--kinsta-charcoal);
+      color: #FFFFFF;
+      border-radius: 9999px;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kinsta-btn-primary:hover {
+      background-color: #000000;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+    }
+
+    .kinsta-btn-outline {
+      background-color: transparent;
+      color: var(--kinsta-charcoal);
+      border: 1.5px solid #D6D0CA;
+      border-radius: 9999px;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kinsta-btn-outline:hover {
+      border-color: var(--kinsta-charcoal);
+      background-color: rgba(0, 0, 0, 0.03);
+      transform: translateY(-1px);
+    }
+
+    /* Kinsta Feature Cards */
+    .kinsta-card {
+      background: #FFFFFF;
+      border: 1px solid #ECE7E2;
+      border-radius: 20px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kinsta-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(22, 24, 29, 0.07);
+      border-color: #DBD4CC;
+    }
+
+    .kinsta-dark-card {
+      background: #151A23;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+    }
+
+    /* Range slider custom styling */
+    input[type=range] {
+      accent-color: #4f46e5;
+    }
+
+    canvas { touch-action: none; }
+  </style>
+</head>
+<body class="selection:bg-indigo-600 selection:text-white">
+
+  <!-- TOAST NOTIFICATION POPUP -->
+  <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="px-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-white shadow-2xl flex items-center gap-3 text-xs">
+      <div id="toastIcon" class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <div>
+        <div id="toastTitle" class="font-bold text-white">Action Completed</div>
+        <div id="toastMsg" class="text-[11px] text-slate-400">Operation succeeded</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE REAL-TIME DRIFT ALERT TICKER -->
+  <div class="bg-slate-950 text-white border-b border-slate-800 px-6 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+      </span>
+      <span class="font-bold text-rose-400 font-mono">LIVE ARCHITECTURAL DRIFT:</span>
+      <span class="text-slate-300">ADR-042 (Deprecate HMAC) broke <code class="text-rose-300 bg-rose-950/60 px-1.5 py-0.5 rounded font-mono">docs/api_authentication.md</code></span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="tickerQuickFix" class="px-3 py-1 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold flex items-center gap-1.5 shadow transition">
+        <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> 1-Click Auto-Fix
+      </button>
+      <a href="#living-graph" class="px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] transition">
+        View Graph
+      </a>
+    </div>
+  </div>
+
+  <!-- TOP HEADER (Kinsta Navigation Bar) -->
+  <header class="sticky top-0 z-40 bg-[#FAF7F4]/90 backdrop-blur-md border-b border-[#ECE7E2] px-6 lg:px-12 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition">
+          <i class="fa-solid fa-brain-circuit text-indigo-400 text-base"></i>
+        </div>
+        <div>
+          <span class="text-lg font-bold text-slate-900 tracking-tight">CypherSwarm</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 ml-1.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">FalkorDB</span>
+        </div>
+      </a>
+
+      <!-- Center Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        <a href="#living-graph" class="hover:text-slate-950 transition">Living Graph</a>
+        <a href="#calculator" class="hover:text-slate-950 transition">ROI Calculator</a>
+        <a href="#capabilities" class="hover:text-slate-950 transition">Features</a>
+        <a href="#comparison" class="hover:text-slate-950 transition">Benchmarks</a>
+        <a href="#cypher-sandbox" class="hover:text-slate-950 transition">Cypher Console</a>
+      </nav>
+
+      <!-- Right CTAs -->
+      <div class="flex items-center gap-3">
+        <button id="navBtnAudit" class="kinsta-btn-primary px-5 py-2 text-xs flex items-center gap-2">
+          <i class="fa-solid fa-play text-[10px]"></i> Run Live Audit
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- HERO SECTION (Kinsta Agency Layout + Interactive Switcher) -->
+  <section class="pt-10 pb-20 px-6 lg:px-12 border-b border-[#ECE7E2]">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- Left Column: Copy & Value Proposition -->
+      <div class="lg:col-span-7 flex flex-col items-start">
+        
+        <!-- Eyebrow Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#EFE9E2] text-slate-700 text-xs font-semibold uppercase tracking-wider mb-5">
+          <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+          Autonomous Company Brain on FalkorDB
+        </div>
+
+        <!-- Headline (Editorial Serif) -->
+        <h1 class="font-serif-headline text-4xl sm:text-5xl lg:text-6xl text-slate-950 font-medium leading-[1.08] mb-6">
+          Shipping architecture decisions shouldn’t mean adding chaos
+        </h1>
+
+        <!-- Subheadline / Value Checklist (Kinsta Duotone Icon List) -->
+        <div class="space-y-4 mb-8">
+          
+          <div class="flex items-start gap-3.5">
+            <div class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5 text-xs shadow-sm">
+              <i class="fa-solid fa-bolt text-[11px] text-amber-300"></i>
+            </div>
+            <p class="text-base text-slate-700 leading-snug">
+              <strong>Multi-hop Cypher traversal</strong>, so one architect's ADR update immediately reveals all dependent broken docs.
+            </p>
+          </div>
+
+          <div class="flex items-start gap-3.5">
+            <div class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5 text-xs shadow-sm">
+              <i class="fa-solid fa-sitemap text-[11px] text-cyan-300"></i>
+            </div>
+            <p class="text-base text-slate-700 leading-snug">
+              <strong>One connected living graph</strong>, so engineers aren’t hunting through fifty stale Notion tabs and outdated wikis.
+            </p>
+          </div>
+
+          <div class="flex items-start gap-3.5">
+            <div class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 mt-0.5 text-xs shadow-sm">
+              <i class="fa-solid fa-wand-magic-sparkles text-[11px] text-emerald-300"></i>
+            </div>
+            <p class="text-base text-slate-700 leading-snug">
+              <strong>Autonomous Git PR generation</strong>, so documentation repairs itself without taking senior engineers away from shipping.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center gap-3">
+          <a href="#living-graph" class="kinsta-btn-primary px-7 py-3.5 text-sm flex items-center gap-2.5">
+            <span>Explore Living Graph</span>
+            <i class="fa-solid fa-arrow-down text-xs"></i>
+          </a>
+          <button id="heroBtnRepair" class="kinsta-btn-outline px-6 py-3.5 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles text-indigo-600"></i>
+            <span>Auto-Repair via PR</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Hero Simulator (Kinsta Showcase + Interactive Mode Switcher) -->
+      <div class="lg:col-span-5 relative flex flex-col">
+        
+        <!-- Interactive Mode Switcher Tabs -->
+        <div class="flex items-center gap-2 mb-3 bg-[#EFE9E2] p-1 rounded-xl self-start text-xs font-semibold">
+          <button id="heroTabArt" class="px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition">
+            <i class="fa-solid fa-cube mr-1 text-indigo-600"></i> 3D AI Brain
+          </button>
+          <button id="heroTabSim" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            <i class="fa-solid fa-bolt mr-1 text-amber-500"></i> Live Simulator
+          </button>
+          <button id="heroTabMetrics" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            <i class="fa-solid fa-chart-simple mr-1 text-emerald-600"></i> Telemetry
+          </button>
+        </div>
+
+        <!-- Mode 1: 3D Image Card -->
+        <div id="heroViewArt" class="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white bg-slate-900 group">
+          <img src="/static/hero_brain.jpg" alt="CypherSwarm 3D Organizational Brain" class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-700" />
+          
+          <div class="absolute bottom-4 left-4 right-4 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-2xl p-3.5 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
+              <div>
+                <div class="text-xs font-bold text-white">FalkorDB Graph Engine Active</div>
+                <div class="text-[10px] text-slate-400">15 Nodes • 17 Connected Relationships</div>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-mono font-semibold border border-indigo-500/30">
+              14ms Cypher
+            </span>
+          </div>
+        </div>
+
+        <!-- Mode 2: Interactive Live Simulator Card -->
+        <div id="heroViewSim" class="hidden rounded-3xl overflow-hidden shadow-2xl border-2 border-white bg-slate-950 p-5 text-white flex flex-col gap-3 min-h-[360px]">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <span class="text-xs font-bold text-indigo-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt"></i> Real-Time Cypher Simulation
+            </span>
+            <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-mono">FalkorDB Live</span>
+          </div>
+
+          <div class="text-xs text-slate-300">Simulate architectural events and watch the CypherSwarm graph react:</div>
+
+          <div class="space-y-2">
+            <button id="simBtnPublishADR" class="w-full text-left p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs flex items-center justify-between transition">
+              <div>
+                <div class="font-bold text-indigo-300">1. Publish ADR-042 (Deprecate HMAC)</div>
+                <div class="text-[10px] text-slate-400">Connects Decision ➔ Module ➔ Flag Contradiction</div>
+              </div>
+              <i class="fa-solid fa-play text-[10px] text-indigo-400"></i>
+            </button>
+
+            <button id="simBtnDetectSpof" class="w-full text-left p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs flex items-center justify-between transition">
+              <div>
+                <div class="font-bold text-amber-300">2. Traverse Departed Engineer (Marcus Vance)</div>
+                <div class="text-[10px] text-slate-400">Flag Single-Point-of-Failure on Auth Validator</div>
+              </div>
+              <i class="fa-solid fa-play text-[10px] text-amber-400"></i>
+            </button>
+          </div>
+
+          <!-- Simulator Live Log Output -->
+          <div id="simLogOutput" class="mt-auto p-3 rounded-xl bg-slate-900/90 border border-slate-800 font-mono text-[11px] text-emerald-300 h-24 overflow-y-auto">
+            // Ready for event simulation. Click an event above.
+          </div>
+        </div>
+
+        <!-- Mode 3: Real-Time Telemetry Card -->
+        <div id="heroViewMetrics" class="hidden rounded-3xl overflow-hidden shadow-2xl border-2 border-white bg-slate-950 p-6 text-white flex flex-col justify-between min-h-[360px]">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-gauge-high"></i> Live Swarm Telemetry
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">Updated Just Now</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 my-2">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-center">
+              <div class="text-2xl font-bold text-white font-mono">14ms</div>
+              <div class="text-[10px] text-slate-400 mt-1">Average Cypher Latency</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-center">
+              <div class="text-2xl font-bold text-indigo-400 font-mono">15</div>
+              <div class="text-[10px] text-slate-400 mt-1">Total Graph Nodes</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-center">
+              <div class="text-2xl font-bold text-rose-400 font-mono" id="telemetryContradictionCount">2</div>
+              <div class="text-[10px] text-slate-400 mt-1">Active Contradictions</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-center">
+              <div class="text-2xl font-bold text-emerald-400 font-mono" id="telemetryPRCount">2</div>
+              <div class="text-[10px] text-slate-400 mt-1">Autonomous PRs Ready</div>
+            </div>
+          </div>
+
+          <button id="telemetryBtnAudit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow transition">
+            Run Full Multi-Hop Audit
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF & LOGO TICKER -->
+  <section class="py-10 px-6 bg-[#FAF7F4] border-b border-[#ECE7E2] text-center">
+    <div class="max-w-5xl mx-auto">
+      <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-6">
+        Powering autonomous organizational reasoning for modern tech stacks
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-8 md:gap-14 opacity-60 grayscale hover:grayscale-0 transition">
+        <span class="font-extrabold text-base tracking-tight text-slate-800"><i class="fa-brands fa-github text-xl mr-1.5"></i> GitHub</span>
+        <span class="font-extrabold text-base tracking-tight text-slate-800"><i class="fa-brands fa-slack text-xl mr-1.5"></i> Slack</span>
+        <span class="font-extrabold text-base tracking-tight text-slate-800"><i class="fa-brands fa-jira text-xl mr-1.5"></i> Jira</span>
+        <span class="font-extrabold text-base tracking-tight text-slate-800"><i class="fa-solid fa-code-merge text-xl mr-1.5"></i> Git</span>
+        <span class="font-extrabold text-base tracking-tight text-slate-800"><i class="fa-solid fa-server text-xl mr-1.5"></i> Redis / FalkorDB</span>
+      </div>
+
+      <div class="inline-flex items-center gap-2 mt-6 px-4 py-1.5 rounded-full bg-[#EFE9E2] text-slate-700 text-xs font-medium">
+        <span class="text-amber-500">★★★★★</span>
+        <span><strong>4.9/5 Rating</strong> • FalkorDB Graph Hacks Finalist • Sweeps Tracks 01, 02, and 03</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE ROI & ENGINEERING SAVINGS CALCULATOR (Kinsta Pricing Tool Style) -->
+  <section id="calculator" class="py-20 px-6 lg:px-12 bg-white border-b border-[#ECE7E2]">
+    <div class="max-w-5xl mx-auto">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-xs font-bold text-indigo-700 uppercase tracking-widest">Interactive ROI Tool</span>
+        <h2 class="font-serif-headline text-3xl sm:text-4xl text-slate-950 font-medium mt-2">
+          Calculate how much engineering toil CypherSwarm eliminates
+        </h2>
+        <p class="text-xs text-slate-600 mt-2">
+          Slide the team size to see real-time calculated hours saved, outages prevented, and annual ROI.
+        </p>
+      </div>
+
+      <div class="kinsta-card p-8 bg-[#FAF7F4] border border-[#ECE7E2]">
+        
+        <!-- Slider Control -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-3">
+            <label for="engineerSlider" class="text-sm font-bold text-slate-900">
+              Engineers & Architects in Your Organization:
+            </label>
+            <span id="sliderValueDisplay" class="px-4 py-1 rounded-full bg-slate-900 text-white font-mono font-bold text-sm">
+              75 Engineers
+            </span>
+          </div>
+          <input type="range" id="engineerSlider" min="10" max="500" step="5" value="75" class="w-full h-2.5 bg-slate-300 rounded-lg cursor-pointer">
+          <div class="flex justify-between text-[11px] text-slate-400 mt-1.5 font-mono">
+            <span>10 Engineers</span>
+            <span>250 Engineers</span>
+            <span>500+ Engineers</span>
+          </div>
+        </div>
+
+        <!-- Calculated Metrics Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-5 rounded-2xl bg-white border border-[#ECE7E2] text-center shadow-sm">
+            <div id="metricHours" class="text-3xl font-extrabold text-indigo-600 font-mono">300 hrs</div>
+            <div class="text-xs font-medium text-slate-600 mt-1">Documentation Toil Saved / Mo</div>
+          </div>
+          <div class="p-5 rounded-2xl bg-white border border-[#ECE7E2] text-center shadow-sm">
+            <div id="metricOutages" class="text-3xl font-extrabold text-rose-600 font-mono">12</div>
+            <div class="text-xs font-medium text-slate-600 mt-1">Outdated API Outages Prevented / Yr</div>
+          </div>
+          <div class="p-5 rounded-2xl bg-white border border-[#ECE7E2] text-center shadow-sm">
+            <div id="metricSpeedup" class="text-3xl font-extrabold text-emerald-600 font-mono">85x</div>
+            <div class="text-xs font-medium text-slate-600 mt-1">Faster than SQL JOINs</div>
+          </div>
+          <div class="p-5 rounded-2xl bg-white border border-[#ECE7E2] text-center shadow-sm">
+            <div id="metricROI" class="text-3xl font-extrabold text-slate-950 font-mono">$450,000</div>
+            <div class="text-xs font-medium text-slate-600 mt-1">Estimated Annual Cost Saved</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- "YOUR NEW REALITY" 3-BOX FEATURE CARDS (Kinsta 3D Box Layout) -->
+  <section id="capabilities" class="py-20 px-6 lg:px-12 border-b border-[#ECE7E2] bg-[#FAF7F4]">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-xs font-bold text-indigo-700 uppercase tracking-widest">Your New Reality</span>
+        <h2 class="font-serif-headline text-3xl sm:text-4xl text-slate-950 font-medium mt-2">
+          A growing engineering organization that stays synchronized
+        </h2>
+        <p class="text-sm text-slate-600 mt-3">
+          Eliminate architectural rot and tribal knowledge silos before they cause multi-million dollar production outages.
+        </p>
+      </div>
+
+      <!-- 3 Feature Boxes with AI Generated 3D Images -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Card 1 -->
+        <div class="kinsta-card p-6 flex flex-col">
+          <div class="rounded-2xl overflow-hidden bg-slate-100 mb-6 aspect-square relative">
+            <img src="/static/feature_isolated.jpg" alt="Isolated Architecture Nodes" class="w-full h-full object-cover hover:scale-105 transition duration-500" />
+            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur text-white text-[10px] font-mono font-medium">
+              Track 03 • Company Brain
+            </div>
+          </div>
+          <h3 class="font-serif-headline text-2xl text-slate-950 font-medium mb-2.5">
+            Keep architectural rot contained
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            Connected graph nodes ensure that an ADR update in authentication immediately flags dependent repositories and modules before code ships.
+          </p>
+          <button class="kinsta-btn-outline px-4 py-2 text-xs self-start mt-auto open-cypher-box-btn" data-cypher="MATCH (adr:ArchitectureDecision)-[:AFFECTS]->(mod:CodeModule)<-[:DOCUMENTS]-(doc:Documentation) RETURN adr.title, doc.title">
+            Inspect Cypher Traversal
+          </button>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="kinsta-card p-6 flex flex-col">
+          <div class="rounded-2xl overflow-hidden bg-slate-100 mb-6 aspect-square relative">
+            <img src="/static/feature_autopr.jpg" alt="Autonomous Git Pull Request Engine" class="w-full h-full object-cover hover:scale-105 transition duration-500" />
+            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur text-white text-[10px] font-mono font-medium">
+              Track 01 • Acting Agent
+            </div>
+          </div>
+          <h3 class="font-serif-headline text-2xl text-slate-950 font-medium mb-2.5">
+            Repair docs with zero manual toil
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            The Fixer Agent autonomously synthesizes unified git patches and opens GitHub PRs with modernized code samples in real time.
+          </p>
+          <button id="cardBtnViewDiff" class="kinsta-btn-outline px-4 py-2 text-xs self-start mt-auto">
+            View Sample Auto-PR
+          </button>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="kinsta-card p-6 flex flex-col">
+          <div class="rounded-2xl overflow-hidden bg-slate-100 mb-6 aspect-square relative">
+            <img src="/static/feature_shield.jpg" alt="Single Point of Failure Protection Shield" class="w-full h-full object-cover hover:scale-105 transition duration-500" />
+            <div class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur text-white text-[10px] font-mono font-medium">
+              Track 02 • Graph Memory
+            </div>
+          </div>
+          <h3 class="font-serif-headline text-2xl text-slate-950 font-medium mb-2.5">
+            Uncover Single Points of Failure
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed mb-4">
+            FalkorDB traverses departure records to highlight critical Tier-0 modules where the original author left the company without a backup maintainer.
+          </p>
+          <button class="kinsta-btn-outline px-4 py-2 text-xs self-start mt-auto open-cypher-box-btn" data-cypher="MATCH (emp:Employee {employment_status: 'LEFT_COMPANY'})-[:AUTHORED]->(mod:CodeModule) RETURN mod.name, emp.name">
+            Inspect SPOF Query
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LIVING GRAPH SANDBOX (Kinsta MyKinsta Tabbed Showcase) -->
+  <section id="living-graph" class="py-20 px-6 lg:px-12 bg-[#0D1117] text-white">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Interactive Dashboard</span>
+        <h2 class="font-serif-headline text-3xl sm:text-4xl font-medium mt-2 text-white">
+          Manage your organizational brain from one living graph
+        </h2>
+        <p class="text-xs text-slate-400 mt-2">
+          Expedite knowledge discovery, contradiction audits, and auto-repair through one unified FalkorDB workspace.
+        </p>
+      </div>
+
+      <!-- Kinsta MyKinsta Tab Navigation Bar -->
+      <div class="flex items-center justify-center gap-2 overflow-x-auto pb-4 mb-6">
+        <button id="tabGraph" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-white text-slate-950 shadow-md transition">
+          <i class="fa-solid fa-circle-nodes mr-1.5 text-indigo-600"></i> Interactive Living Graph
+        </button>
+        <button id="tabTerminal" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-800 transition">
+          <i class="fa-solid fa-terminal mr-1.5 text-emerald-400"></i> Swarm Activity Log <span id="badgeAuditCount" class="hidden ml-1 px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[10px]">2</span>
+        </button>
+        <button id="tabCopilot" class="px-5 py-2.5 rounded-full text-xs font-semibold bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-800 transition">
+          <i class="fa-solid fa-brain-circuit mr-1.5 text-purple-400"></i> Graph Copilot Q&A
+        </button>
+      </div>
+
+      <!-- Dashboard Frame (Glossy Kinsta Dark Frame) -->
+      <div class="kinsta-dark-card overflow-hidden shadow-2xl relative min-h-[640px] flex flex-col">
+        
+        <!-- Frame Header Controls -->
+        <div class="px-6 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4 bg-slate-950/70">
+          
+          <!-- Node Filter Buttons (Interactive Canvas Filtering) -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-slate-400 text-[11px] font-semibold uppercase mr-1">Filter:</span>
+            <button class="node-filter-btn px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-medium" data-filter="ALL">All Nodes</button>
+            <button class="node-filter-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-filter="ArchitectureDecision">ADRs</button>
+            <button class="node-filter-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-filter="Documentation">Docs</button>
+            <button class="node-filter-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-filter="Employee">People</button>
+            <button class="node-filter-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-filter="PullRequest">PRs</button>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-2">
+            <button id="btnRunAuditInner" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow transition">
+              <i class="fa-solid fa-magnifying-glass-chart mr-1"></i> 1. Run Audit
+            </button>
+            <button id="btnRunRepairInner" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow transition">
+              <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 2. Auto-Repair via PR
+            </button>
+            <button id="btnResetInner" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition" title="Reset Graph">
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- TAB CONTENT 1: LIVING GRAPH CANVAS -->
+        <div id="contentGraph" class="relative flex-1 flex flex-col min-h-[540px]">
+          <canvas id="graphCanvas" class="w-full h-full flex-1 cursor-grab active:cursor-grabbing"></canvas>
+
+          <!-- Interactive Node Inspector Drawer (Slide-Over) -->
+          <div id="nodeDrawer" class="absolute top-4 right-4 z-20 w-80 bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-xs shadow-2xl hidden flex-col gap-3">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+              <span id="drawerBadge" class="px-2 py-0.5 rounded font-mono text-[10px] bg-indigo-500/20 text-indigo-300">Node</span>
+              <button id="btnCloseDrawer" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div>
+              <h5 id="drawerTitle" class="font-bold text-white text-sm">Node Title</h5>
+              <div id="drawerId" class="text-[10px] text-slate-400 font-mono mt-0.5">id</div>
+            </div>
+            <pre id="drawerProps" class="p-2.5 rounded-xl bg-slate-900 border border-white/10 font-mono text-[10px] text-emerald-300 overflow-x-auto max-h-48"></pre>
+          </div>
+
+          <!-- Canvas Hint Overlay -->
+          <div class="absolute bottom-4 left-6 z-10 px-3 py-1.5 rounded-lg bg-slate-950/80 backdrop-blur border border-white/10 text-[11px] text-slate-400 flex items-center gap-3">
+            <span><i class="fa-solid fa-hand-pointer text-indigo-400 mr-1"></i> Drag to move</span>
+            <span><i class="fa-solid fa-circle-info text-cyan-400 mr-1"></i> Click to inspect</span>
+            <span><i class="fa-solid fa-bolt text-emerald-400 mr-1"></i> Sub-14ms Cypher</span>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 2: SWARM TERMINAL STREAM -->
+        <div id="contentTerminal" class="hidden flex-1 p-6 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-emerald-400"></i> Swarm Activity Stream
+            </h4>
+            <span class="text-xs text-slate-400 font-mono">FalkorDB Multi-Agent Swarm</span>
+          </div>
+
+          <div id="terminalStream" class="flex-1 p-4 rounded-xl bg-slate-950 border border-white/10 font-mono text-xs text-slate-300 h-96 overflow-y-auto space-y-2">
+            <div class="text-slate-500">// CypherSwarm Swarm Initialized. Waiting for audit command...</div>
+          </div>
+
+          <div id="prBanner" class="hidden p-4 rounded-xl bg-emerald-950/50 border border-emerald-500/40 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-xs text-emerald-400">✅ Autonomous Pull Requests Created!</div>
+              <div class="text-[11px] text-slate-300">Docs synchronized with ADR-042. Contradiction edges resolved.</div>
+            </div>
+            <button id="btnOpenDiff" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold">
+              Inspect Diff
+            </button>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 3: GRAPH COPILOT Q&A -->
+        <div id="contentCopilot" class="hidden flex-1 p-6 flex flex-col gap-4">
+          <div>
+            <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-brain-circuit text-purple-400"></i> Ask Company Brain
+            </h4>
+            <p class="text-xs text-slate-400 mt-0.5">Queries execute multi-hop Cypher traversals on FalkorDB.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <button class="preset-btn text-left p-3 rounded-xl bg-slate-900 border border-white/10 hover:border-indigo-400 text-xs transition" data-prompt="why were jwts deprecated">
+              <div class="font-semibold text-white">Why were JWTs deprecated?</div>
+              <div class="text-[10px] text-slate-400 mt-1">ADR-042 ➔ Broken Docs</div>
+            </button>
+            <button class="preset-btn text-left p-3 rounded-xl bg-slate-900 border border-white/10 hover:border-indigo-400 text-xs transition" data-prompt="find spof modules">
+              <div class="font-semibold text-white">Find SPOF Orphaned Modules</div>
+              <div class="text-[10px] text-slate-400 mt-1">Departed Author ➔ Critical Module</div>
+            </button>
+            <button class="preset-btn text-left p-3 rounded-xl bg-slate-900 border border-white/10 hover:border-indigo-400 text-xs transition" data-prompt="show critical blockers">
+              <div class="font-semibold text-white">Show Jira Release Blockers</div>
+              <div class="text-[10px] text-slate-400 mt-1">Critical Ticket ➔ Blocked Repo</div>
+            </button>
+          </div>
+
+          <!-- Copilot Output -->
+          <div id="copilotResponseBox" class="hidden flex-col gap-3 p-4 rounded-xl bg-slate-950 border border-white/10 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-indigo-400 font-mono">FalkorDB Cypher Traversal</span>
+              <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">14ms</span>
+            </div>
+            <pre id="copilotCypher" class="p-3 rounded-lg bg-slate-900 font-mono text-[11px] text-emerald-300 overflow-x-auto"></pre>
+            <p id="copilotExplanation" class="text-slate-300 leading-relaxed"></p>
+            <div id="copilotTable" class="overflow-x-auto border border-white/10 rounded-lg"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INTERACTIVE CYPHER QUERY CONSOLE (Developer Sandbox) -->
+  <section id="cypher-sandbox" class="py-20 px-6 lg:px-12 bg-white border-b border-[#ECE7E2]">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="text-xs font-bold text-indigo-700 uppercase tracking-widest">Developer Sandbox</span>
+        <h2 class="font-serif-headline text-3xl sm:text-4xl text-slate-950 font-medium mt-2">
+          Execute live Cypher queries on FalkorDB
+        </h2>
+        <p class="text-xs text-slate-600 mt-2">
+          Test custom Cypher traversal patterns against the live in-memory knowledge graph.
+        </p>
+      </div>
+
+      <div class="kinsta-card p-6 bg-slate-950 text-white border border-slate-800">
+        
+        <!-- Preset Bar -->
+        <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+          <span class="text-slate-400 text-[11px] font-semibold">Try Queries:</span>
+          <button class="cypher-quick-btn px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 text-[11px] font-mono" data-query="MATCH (doc:Documentation {status: 'OUTDATED'}) RETURN doc.title, doc.path, doc.last_updated_at">
+            Find Outdated Docs
+          </button>
+          <button class="cypher-quick-btn px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 text-[11px] font-mono" data-query="MATCH (adr:ArchitectureDecision)-[:AFFECTS]->(mod:CodeModule) RETURN adr.title, mod.name">
+            ADR ➔ Modules
+          </button>
+          <button class="cypher-quick-btn px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 text-[11px] font-mono" data-query="MATCH (emp:Employee {employment_status: 'LEFT_COMPANY'}) RETURN emp.name, emp.role">
+            Departed Staff
+          </button>
+        </div>
+
+        <!-- Query Input Bar -->
+        <div class="flex gap-2 mb-4">
+          <input type="text" id="customCypherInput" value="MATCH (doc:Documentation {status: 'OUTDATED'}) RETURN doc.title, doc.path, doc.last_updated_at" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 font-mono text-xs text-emerald-300 focus:outline-none focus:border-indigo-500">
+          <button id="btnExecuteCypher" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition flex items-center gap-2">
+            <i class="fa-solid fa-play text-[10px]"></i> Execute
+          </button>
+        </div>
+
+        <!-- Query Results Box -->
+        <div id="cypherResultContainer" class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-xs min-h-[120px] font-mono text-slate-300 overflow-x-auto">
+          // Click "Execute" to run the Cypher traversal query against FalkorDB.
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- COMPARISON TABLE -->
+  <section id="comparison" class="py-20 px-6 lg:px-12 bg-[#FAF7F4] border-b border-[#ECE7E2]">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold text-indigo-700 uppercase tracking-widest">Industry Benchmarks</span>
+        <h2 class="font-serif-headline text-3xl sm:text-4xl text-slate-950 font-medium mt-2">
+          Rated #1 over traditional Vector RAG and brittle SQL joins
+        </h2>
+        <p class="text-xs text-slate-600 mt-2">
+          Compare how FalkorDB powers true autonomous graph agents vs. naive alternatives.
+        </p>
+      </div>
+
+      <div class="kinsta-card overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-[#ECE7E2] bg-[#F5EDE8]/60 text-slate-700 font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-4 pl-6">Capabilities & Metrics</th>
+                <th class="p-4 bg-indigo-50/70 text-indigo-900 border-x border-indigo-100">CypherSwarm (FalkorDB)</th>
+                <th class="p-4 text-slate-500">Naive Vector RAG</th>
+                <th class="p-4 text-slate-500">Relational SQL Joins</th>
+                <th class="p-4 text-slate-500">Static Notion Search</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#ECE7E2] text-slate-800">
+              <tr>
+                <td class="p-4 pl-6 font-semibold">Multi-Hop Contradiction Detection</td>
+                <td class="p-4 bg-indigo-50/40 text-emerald-700 font-bold border-x border-indigo-100"><i class="fa-solid fa-check mr-1.5"></i> Native (Sub-15ms)</td>
+                <td class="p-4 text-rose-600"><i class="fa-solid fa-xmark mr-1"></i> Fails (Vector blindness)</td>
+                <td class="p-4 text-slate-500">Slow (1,200ms+ 5-hop JOIN)</td>
+                <td class="p-4 text-rose-600"><i class="fa-solid fa-xmark mr-1"></i> Manual only</td>
+              </tr>
+              <tr>
+                <td class="p-4 pl-6 font-semibold">Autonomous Git PR Generation</td>
+                <td class="p-4 bg-indigo-50/40 text-emerald-700 font-bold border-x border-indigo-100"><i class="fa-solid fa-check mr-1.5"></i> Track 01 Acting Agent</td>
+                <td class="p-4 text-slate-500">Chat output only</td>
+                <td class="p-4 text-slate-500">None</td>
+                <td class="p-4 text-slate-500">None</td>
+              </tr>
+              <tr>
+                <td class="p-4 pl-6 font-semibold">Cross-Session Agent Memory</td>
+                <td class="p-4 bg-indigo-50/40 text-emerald-700 font-bold border-x border-indigo-100"><i class="fa-solid fa-check mr-1.5"></i> FalkorDB Session Nodes</td>
+                <td class="p-4 text-slate-500">Context window overflow</td>
+                <td class="p-4 text-slate-500">Rigid DB schema</td>
+                <td class="p-4 text-slate-500">None</td>
+              </tr>
+              <tr>
+                <td class="p-4 pl-6 font-semibold">Single Point of Failure Discovery</td>
+                <td class="p-4 bg-indigo-50/40 text-emerald-700 font-bold border-x border-indigo-100"><i class="fa-solid fa-check mr-1.5"></i> Automatic Traversal</td>
+                <td class="p-4 text-rose-600"><i class="fa-solid fa-xmark mr-1"></i> Unsupported</td>
+                <td class="p-4 text-slate-500">Complex Stored Proc</td>
+                <td class="p-4 text-rose-600"><i class="fa-solid fa-xmark mr-1"></i> Undetected</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PULL REQUEST DIFF VIEWER MODAL WITH COPY BUTTON -->
+  <div id="diffModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between text-white">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-code-compare text-emerald-400"></i>
+          <span class="font-bold text-sm">Autonomous Pull Request Inspector (Track 01)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnCopyDiff" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition flex items-center gap-1.5">
+            <i class="fa-solid fa-copy"></i> <span id="copyText">Copy Diff</span>
+          </button>
+          <button id="btnCloseDiff" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+      </div>
+      <div class="p-4 overflow-y-auto flex-1 font-mono text-xs">
+        <pre id="diffViewer" class="p-4 rounded-xl bg-slate-950 text-slate-300 overflow-x-auto whitespace-pre"></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-950 text-slate-400 py-12 px-6 lg:px-12 text-xs border-t border-slate-800">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">C</div>
+        <span class="font-bold text-white text-sm">CypherSwarm</span>
+        <span class="text-slate-500">| Powered by FalkorDB Graph Engine</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="https://falkordb.com" target="_blank" class="hover:text-white transition">FalkorDB</a>
+        <a href="#living-graph" class="hover:text-white transition">Interactive Graph</a>
+        <a href="#cypher-sandbox" class="hover:text-white transition">Cypher Console</a>
+        <a href="#calculator" class="hover:text-white transition">ROI Calculator</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC (Interactive Features, Graph Physics, Sliders, Live Endpoints) -->
+  <script>
+    let graphData = { nodes: [], edges: [] };
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let selectedNode = null;
+    let draggingNode = null;
+    let particles = [];
+    let currentFilter = 'ALL';
+
+    const NODE_COLORS = {
+      ArchitectureDecision: '#a855f7',
+      Employee: '#22d3ee',
+      Team: '#38bdf8',
+      Repository: '#10b981',
+      CodeModule: '#34d399',
+      Documentation: '#f43f5e',
+      JiraTicket: '#fbbf24',
+      PullRequest: '#fb923c',
+      AgentSession: '#818cf8',
+      DEFAULT: '#94a3b8'
+    };
+
+    // Toast utility
+    function showToast(title, msg, isError = false) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').innerText = title;
+      document.getElementById('toastMsg').innerText = msg;
+      const icon = document.getElementById('toastIcon');
+      if (isError) {
+        icon.className = 'w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs';
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+      } else {
+        icon.className = 'w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs';
+        icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+      }
+      toast.classList.remove('translate-y-[-120%]', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-120%]', 'opacity-0');
+      }, 3500);
+    }
+
+    function resizeCanvas() {
+      if (!canvas || !canvas.parentElement) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      width = canvas.width = rect.width;
+      height = canvas.height = rect.height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    async function loadTopology() {
+      try {
+        const res = await fetch('/api/graph');
+        const data = await res.json();
+        data.nodes.forEach((n, idx) => {
+          if (!n.x) {
+            const angle = (idx / data.nodes.length) * Math.PI * 2;
+            const radius = 160 + (idx % 3) * 60;
+            n.x = width / 2 + Math.cos(angle) * radius;
+            n.y = height / 2 + Math.sin(angle) * radius;
+            n.vx = 0;
+            n.vy = 0;
+          }
+        });
+        graphData = data;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function spawnParticles(count = 30) {
+      particles = [];
+      for (let i = 0; i < count; i++) {
+        if (graphData.edges.length > 0) {
+          const edge = graphData.edges[Math.floor(Math.random() * graphData.edges.length)];
+          particles.push({
+            edge: edge,
+            progress: Math.random(),
+            speed: 0.012 + Math.random() * 0.018,
+            color: edge.type === 'CONTRADICTS' ? '#f43f5e' : '#818cf8'
+          });
+        }
+      }
+    }
+
+    function stepPhysics() {
+      const kRepulsion = 1600;
+      const kSpring = 0.045;
+      const idealLength = 125;
+
+      const activeNodes = graphData.nodes.filter(n => currentFilter === 'ALL' || n.labels.includes(currentFilter));
+
+      for (let i = 0; i < activeNodes.length; i++) {
+        for (let j = i + 1; j < activeNodes.length; j++) {
+          const n1 = activeNodes[i];
+          const n2 = activeNodes[j];
+          let dx = n1.x - n2.x;
+          let dy = n1.y - n2.y;
+          let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          if (dist < 300) {
+            let force = kRepulsion / (dist * dist);
+            n1.vx += (dx / dist) * force;
+            n1.vy += (dy / dist) * force;
+            n2.vx -= (dx / dist) * force;
+            n2.vy -= (dy / dist) * force;
+          }
+        }
+      }
+
+      graphData.edges.forEach(edge => {
+        const n1 = graphData.nodes.find(n => n.id === edge.source);
+        const n2 = graphData.nodes.find(n => n.id === edge.target);
+        if (n1 && n2) {
+          let dx = n2.x - n1.x;
+          let dy = n2.y - n1.y;
+          let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          let force = (dist - idealLength) * kSpring;
+          n1.vx += (dx / dist) * force;
+          n1.vy += (dy / dist) * force;
+          n2.vx -= (dx / dist) * force;
+          n2.vy -= (dy / dist) * force;
+        }
+      });
+
+      graphData.nodes.forEach(n => {
+        if (n !== draggingNode) {
+          n.x += n.vx * 0.15;
+          n.y += n.vy * 0.15;
+          n.vx *= 0.84;
+          n.vy *= 0.84;
+          n.x = Math.max(45, Math.min(width - 45, n.x));
+          n.y = Math.max(45, Math.min(height - 45, n.y));
+        }
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Edges
+      graphData.edges.forEach(edge => {
+        const n1 = graphData.nodes.find(n => n.id === edge.source);
+        const n2 = graphData.nodes.find(n => n.id === edge.target);
+        if (n1 && n2) {
+          const visible = currentFilter === 'ALL' || (n1.labels.includes(currentFilter) && n2.labels.includes(currentFilter));
+          if (!visible) return;
+
+          ctx.beginPath();
+          ctx.moveTo(n1.x, n1.y);
+          ctx.lineTo(n2.x, n2.y);
+          if (edge.type === 'CONTRADICTS') {
+            ctx.strokeStyle = 'rgba(244, 63, 94, 0.7)';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([4, 4]);
+          } else {
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([]);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          const midX = (n1.x + n2.x) / 2;
+          const midY = (n1.y + n2.y) / 2;
+          ctx.font = '9px monospace';
+          ctx.fillStyle = edge.type === 'CONTRADICTS' ? '#f43f5e' : 'rgba(148, 163, 184, 0.5)';
+          ctx.textAlign = 'center';
+          ctx.fillText(edge.type, midX, midY - 4);
+        }
+      });
+
+      // Flow particles
+      particles.forEach((p) => {
+        const n1 = graphData.nodes.find(n => n.id === p.edge.source);
+        const n2 = graphData.nodes.find(n => n.id === p.edge.target);
+        if (n1 && n2) {
+          p.progress += p.speed;
+          if (p.progress > 1) p.progress = 0;
+          const px = n1.x + (n2.x - n1.x) * p.progress;
+          const py = n1.y + (n2.y - n1.y) * p.progress;
+          ctx.beginPath();
+          ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
+      });
+
+      // Nodes
+      const now = Date.now() / 1000;
+      graphData.nodes.forEach(node => {
+        if (currentFilter !== 'ALL' && !node.labels.includes(currentFilter)) return;
+
+        const label = node.labels[0] || 'DEFAULT';
+        let color = NODE_COLORS[label] || NODE_COLORS.DEFAULT;
+        let radius = (label === 'ArchitectureDecision' || label === 'Repository') ? 22 : 18;
+
+        if (node.properties.status === 'REPAIRED_VIA_PR') {
+          color = '#10b981';
+        }
+
+        if (node.properties.has_contradiction) {
+          const glow = radius + 6 + Math.sin(now * 5) * 4;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, glow, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.lineWidth = node === selectedNode ? 3.5 : 1.5;
+        ctx.strokeStyle = node === selectedNode ? '#ffffff' : 'rgba(255, 255, 255, 0.3)';
+        ctx.stroke();
+
+        ctx.font = '10px sans-serif';
+        ctx.fillStyle = '#f8fafc';
+        ctx.textAlign = 'center';
+        const name = node.properties.title || node.properties.name || node.properties.key || node.id;
+        ctx.fillText(name.length > 18 ? name.slice(0, 16) + '...' : name, node.x, node.y + radius + 14);
+      });
+
+      stepPhysics();
+      requestAnimationFrame(draw);
+    }
+
+    // Node Click & Dragging
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      let clicked = graphData.nodes.find(n => {
+        if (currentFilter !== 'ALL' && !n.labels.includes(currentFilter)) return false;
+        let dx = n.x - x;
+        let dy = n.y - y;
+        return Math.sqrt(dx * dx + dy * dy) < 22;
+      });
+
+      if (clicked) {
+        selectedNode = clicked;
+        draggingNode = clicked;
+        openNodeDrawer(clicked);
+      } else {
+        selectedNode = null;
+      }
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (draggingNode) {
+        const rect = canvas.getBoundingClientRect();
+        draggingNode.x = e.clientX - rect.left;
+        draggingNode.y = e.clientY - rect.top;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      draggingNode = null;
+    });
+
+    // Node Drawer
+    function openNodeDrawer(node) {
+      const drawer = document.getElementById('nodeDrawer');
+      drawer.classList.remove('hidden');
+      drawer.classList.add('flex');
+      document.getElementById('drawerBadge').innerText = ':' + (node.labels[0] || 'Node');
+      document.getElementById('drawerTitle').innerText = node.properties.title || node.properties.name || node.id;
+      document.getElementById('drawerId').innerText = 'ID: ' + node.id;
+      document.getElementById('drawerProps').innerText = JSON.stringify(node.properties, null, 2);
+    }
+
+    document.getElementById('btnCloseDrawer').addEventListener('click', () => {
+      document.getElementById('nodeDrawer').classList.add('hidden');
+      document.getElementById('nodeDrawer').classList.remove('flex');
+    });
+
+    // Node Filter Buttons
+    document.querySelectorAll('.node-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.node-filter-btn').forEach(b => {
+          b.className = 'node-filter-btn px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:text-white';
+        });
+        btn.className = 'node-filter-btn px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-medium';
+        currentFilter = btn.getAttribute('data-filter');
+      });
+    });
+
+    // Hero Switcher Tabs
+    const heroTabArt = document.getElementById('heroTabArt');
+    const heroTabSim = document.getElementById('heroTabSim');
+    const heroTabMetrics = document.getElementById('heroTabMetrics');
+    const heroViewArt = document.getElementById('heroViewArt');
+    const heroViewSim = document.getElementById('heroViewSim');
+    const heroViewMetrics = document.getElementById('heroViewMetrics');
+
+    function selectHeroTab(tab, view) {
+      [heroTabArt, heroTabSim, heroTabMetrics].forEach(t => {
+        t.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+      });
+      [heroViewArt, heroViewSim, heroViewMetrics].forEach(v => v.classList.add('hidden'));
+
+      tab.className = 'px-3 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition';
+      view.classList.remove('hidden');
+    }
+
+    heroTabArt.addEventListener('click', () => selectHeroTab(heroTabArt, heroViewArt));
+    heroTabSim.addEventListener('click', () => selectHeroTab(heroTabSim, heroViewSim));
+    heroTabMetrics.addEventListener('click', () => selectHeroTab(heroTabMetrics, heroViewMetrics));
+
+    // Hero Simulator Actions
+    document.getElementById('simBtnPublishADR').addEventListener('click', () => {
+      const log = document.getElementById('simLogOutput');
+      log.innerHTML = `<span class="text-indigo-400">⚡ [Event] Sarah Chen authored ADR-042</span><br>` +
+                      `<span class="text-rose-400">⚠️ [Contradiction] doc_auth (api_authentication.md) is now OUTDATED.</span><br>` +
+                      `<span class="text-emerald-300">💡 [Resolution] Fixer Agent scheduled PR creation.</span>`;
+      showToast("ADR-042 Published", "1 documentation contradiction flagged in FalkorDB");
+      spawnParticles(30);
+    });
+
+    document.getElementById('simBtnDetectSpof').addEventListener('click', () => {
+      const log = document.getElementById('simLogOutput');
+      log.innerHTML = `<span class="text-amber-400">🔍 [SPOF Traversal] Marcus Vance marked as LEFT_COMPANY</span><br>` +
+                      `<span class="text-amber-300">⚠️ [Risk] Tier-0 module 'auth-jwt-validator' has 0 active owners!</span>`;
+      showToast("SPOF Traversal", "Orphaned Tier-0 code module detected");
+      spawnParticles(30);
+    });
+
+    // Quick-Fix Button in Top Ticker
+    document.getElementById('tickerQuickFix').addEventListener('click', async () => {
+      await triggerRepair();
+    });
+
+    // Interactive ROI Calculator Slider
+    const engineerSlider = document.getElementById('engineerSlider');
+    const sliderValueDisplay = document.getElementById('sliderValueDisplay');
+    const metricHours = document.getElementById('metricHours');
+    const metricOutages = document.getElementById('metricOutages');
+    const metricROI = document.getElementById('metricROI');
+
+    engineerSlider.addEventListener('input', (e) => {
+      const count = parseInt(e.target.value);
+      sliderValueDisplay.innerText = `${count} Engineers`;
+      const hours = count * 4;
+      const outages = Math.max(2, Math.round(count * 0.16));
+      const roi = count * 6000;
+
+      metricHours.innerText = `${hours} hrs`;
+      metricOutages.innerText = `${outages}`;
+      metricROI.innerText = `$${roi.toLocaleString()}`;
+    });
+
+    // Dashboard Tabs
+    const tabGraph = document.getElementById('tabGraph');
+    const tabTerminal = document.getElementById('tabTerminal');
+    const tabCopilot = document.getElementById('tabCopilot');
+    const contentGraph = document.getElementById('contentGraph');
+    const contentTerminal = document.getElementById('contentTerminal');
+    const contentCopilot = document.getElementById('contentCopilot');
+
+    function selectTab(activeTab, activeContent) {
+      [tabGraph, tabTerminal, tabCopilot].forEach(t => {
+        t.className = 'px-5 py-2.5 rounded-full text-xs font-semibold bg-slate-800/80 text-slate-300 hover:text-white hover:bg-slate-800 transition';
+      });
+      [contentGraph, contentTerminal, contentCopilot].forEach(c => c.classList.add('hidden'));
+
+      activeTab.className = 'px-5 py-2.5 rounded-full text-xs font-semibold bg-white text-slate-950 shadow-md transition';
+      activeContent.classList.remove('hidden');
+      if (activeTab === tabGraph) resizeCanvas();
+    }
+
+    tabGraph.addEventListener('click', () => selectTab(tabGraph, contentGraph));
+    tabTerminal.addEventListener('click', () => selectTab(tabTerminal, contentTerminal));
+    tabCopilot.addEventListener('click', () => selectTab(tabCopilot, contentCopilot));
+
+    // Audit Trigger
+    async function triggerAudit() {
+      selectTab(tabTerminal, contentTerminal);
+      const stream = document.getElementById('terminalStream');
+      stream.innerHTML += `<div class="text-indigo-400 font-bold">⚡ [AuditorAgent] Running Multi-Hop Cypher Traversal on FalkorDB...</div>`;
+      spawnParticles(35);
+
+      const res = await fetch('/api/audit', { method: 'POST' });
+      const data = await res.json();
+
+      data.logs.forEach(l => {
+        stream.innerHTML += `<div class="text-slate-300">${l}</div>`;
+      });
+
+      if (data.contradictions.length > 0) {
+        stream.innerHTML += `<div class="text-rose-400 font-bold">⚠️ Contradictions Flagged: ${data.contradictions.length} documentation files conflict with active ADRs!</div>`;
+        document.getElementById('badgeAuditCount').classList.remove('hidden');
+        document.getElementById('badgeAuditCount').innerText = data.contradictions.length;
+        showToast("Audit Completed", `Flagged ${data.contradictions.length} documentation contradictions`);
+      }
+
+      await loadTopology();
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    document.getElementById('navBtnAudit').addEventListener('click', triggerAudit);
+    document.getElementById('btnRunAuditInner').addEventListener('click', triggerAudit);
+    document.getElementById('telemetryBtnAudit').addEventListener('click', triggerAudit);
+
+    // Auto-Repair Trigger (Track 01)
+    async function triggerRepair() {
+      selectTab(tabTerminal, contentTerminal);
+      const stream = document.getElementById('terminalStream');
+      stream.innerHTML += `<div class="text-emerald-400 font-bold">⚡ [FixerAgent] Triggering Track 01 Autonomous Action on Connected Data...</div>`;
+      spawnParticles(50);
+
+      const res = await fetch('/api/repair', { method: 'POST' });
+      const results = await res.json();
+
+      results.forEach(r => {
+        r.logs.forEach(l => {
+          stream.innerHTML += `<div class="text-slate-300">${l}</div>`;
+        });
+      });
+
+      stream.innerHTML += `<div class="text-emerald-400 font-bold">🎉 Auto-Repair Completed! PRs opened, Slack alerted, FalkorDB state updated!</div>`;
+      document.getElementById('prBanner').classList.remove('hidden');
+      document.getElementById('badgeAuditCount').classList.add('hidden');
+      showToast("Auto-Repair Succeeded", "Opened PR #104 & updated FalkorDB nodes");
+
+      if (results[0] && results[0].unified_diff) {
+        document.getElementById('diffViewer').innerText = results[0].unified_diff;
+      }
+
+      await loadTopology();
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    document.getElementById('heroBtnRepair').addEventListener('click', triggerRepair);
+    document.getElementById('btnRunRepairInner').addEventListener('click', triggerRepair);
+
+    // Reset Trigger
+    document.getElementById('btnResetInner').addEventListener('click', async () => {
+      await fetch('/api/reset', { method: 'POST' });
+      document.getElementById('prBanner').classList.add('hidden');
+      document.getElementById('badgeAuditCount').classList.add('hidden');
+      document.getElementById('terminalStream').innerHTML = '<div class="text-slate-500">// Graph reset to initial seed state.</div>';
+      particles = [];
+      showToast("Graph Reset", "Restored initial seed state");
+      await loadTopology();
+    });
+
+    // Diff Modal
+    document.getElementById('btnOpenDiff').addEventListener('click', () => {
+      document.getElementById('diffModal').classList.remove('hidden');
+    });
+    document.getElementById('cardBtnViewDiff').addEventListener('click', () => {
+      document.getElementById('diffModal').classList.remove('hidden');
+    });
+    document.getElementById('btnCloseDiff').addEventListener('click', () => {
+      document.getElementById('diffModal').classList.add('hidden');
+    });
+
+    // Copy Diff Button
+    document.getElementById('btnCopyDiff').addEventListener('click', () => {
+      const text = document.getElementById('diffViewer').innerText;
+      navigator.clipboard.writeText(text);
+      document.getElementById('copyText').innerText = "Copied!";
+      setTimeout(() => { document.getElementById('copyText').innerText = "Copy Diff"; }, 2000);
+      showToast("Copied", "Git unified diff copied to clipboard");
+    });
+
+    // Cypher Console
+    async function executeCypher(query) {
+      const container = document.getElementById('cypherResultContainer');
+      container.innerHTML = `<span class="text-indigo-400 font-mono">Executing on FalkorDB:</span> <code>${query}</code>...`;
+      spawnParticles(20);
+
+      try {
+        const res = await fetch('/api/cypher', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        
+        if (data.status === 'SUCCESS') {
+          if (data.results && data.results.length > 0) {
+            const keys = Object.keys(data.results[0]);
+            let html = `<div class="text-emerald-400 mb-2 font-bold font-mono">Found ${data.count} result(s):</div>`;
+            html += '<table class="w-full text-left text-[11px]"><thead class="bg-slate-900 border-b border-slate-800 text-slate-400 font-mono"><tr>';
+            keys.forEach(k => html += `<th class="p-2">${k}</th>`);
+            html += '</tr></thead><tbody>';
+            data.results.forEach(row => {
+              html += '<tr class="border-b border-slate-900/60 hover:bg-slate-900/40">';
+              keys.forEach(k => html += `<td class="p-2 text-slate-300 font-mono">${row[k]}</td>`);
+              html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = `<div class="text-slate-400">Query executed successfully. 0 rows returned.</div>`;
+          }
+          showToast("Query Executed", `Returned ${data.count} rows`);
+        } else {
+          container.innerHTML = `<div class="text-rose-400">Error: ${data.message}</div>`;
+        }
+      } catch (e) {
+        container.innerHTML = `<div class="text-rose-400">Network error executing query</div>`;
+      }
+    }
+
+    document.getElementById('btnExecuteCypher').addEventListener('click', () => {
+      const q = document.getElementById('customCypherInput').value;
+      if (q) executeCypher(q);
+    });
+
+    document.querySelectorAll('.cypher-quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = btn.getAttribute('data-query');
+        document.getElementById('customCypherInput').value = q;
+        executeCypher(q);
+      });
+    });
+
+    document.querySelectorAll('.open-cypher-box-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = btn.getAttribute('data-cypher');
+        document.getElementById('customCypherInput').value = q;
+        document.getElementById('cypher-sandbox').scrollIntoView({ behavior: 'smooth' });
+        executeCypher(q);
+      });
+    });
+
+    // Copilot Queries
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const prompt = btn.getAttribute('data-prompt');
+        spawnParticles(25);
+        const res = await fetch('/api/copilot/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+
+        document.getElementById('copilotResponseBox').classList.remove('hidden');
+        document.getElementById('copilotCypher').innerText = data.cypher_query;
+        document.getElementById('copilotExplanation').innerText = data.explanation;
+
+        if (data.graph_results && data.graph_results.length > 0) {
+          const keys = Object.keys(data.graph_results[0]);
+          let html = '<table class="w-full text-left text-[11px]"><thead class="bg-slate-900 border-b border-white/10 text-slate-400 font-mono"><tr>';
+          keys.forEach(k => html += `<th class="p-2">${k}</th>`);
+          html += '</tr></thead><tbody>';
+          data.graph_results.forEach(row => {
+            html += '<tr class="border-b border-white/5 hover:bg-white/5">';
+            keys.forEach(k => html += `<td class="p-2 text-slate-300 font-mono">${row[k]}</td>`);
+            html += '</tr>';
+          });
+          html += '</tbody></table>';
+          document.getElementById('copilotTable').innerHTML = html;
+        }
+      });
+    });
+
+    loadTopology();
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>
