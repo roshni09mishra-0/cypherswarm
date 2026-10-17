@@ -41,7 +41,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-WORKSPACE_DIR = os.path.join(CURRENT_DIR, "..", "mock_workspace")
+# On Vercel Serverless, file system is read-only except for /tmp
+if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+    WORKSPACE_DIR = "/tmp/mock_workspace"
+else:
+    WORKSPACE_DIR = os.path.join(CURRENT_DIR, "..", "mock_workspace")
+
 FRONTEND_DIR = os.path.join(CURRENT_DIR, "..", "frontend")
 
 # Initialize FalkorDB Engine
@@ -64,6 +69,7 @@ class RepairRequest(BaseModel):
 
 
 @app.get("/api/health")
+@app.get("/health")
 def health():
     return {
         "status": "healthy",
@@ -74,12 +80,14 @@ def health():
 
 
 @app.get("/api/graph")
+@app.get("/graph")
 def get_graph():
     """Returns the full knowledge graph topology for live interactive visualization."""
     return falkordb.get_topology()
 
 
 @app.post("/api/audit")
+@app.post("/audit")
 def run_audit():
     """Triggers Auditor Agent to perform multi-hop Cypher queries and record session memory."""
     res = audit_agent.run_full_audit()
@@ -87,6 +95,7 @@ def run_audit():
 
 
 @app.post("/api/repair")
+@app.post("/repair")
 def run_repair(req: Optional[RepairRequest] = None):
     """Triggers Fixer Agent to execute autonomous Git PRs, Slack alerts, and graph updates."""
     if req and req.doc_id and req.doc_file_path:
@@ -100,6 +109,7 @@ def run_repair(req: Optional[RepairRequest] = None):
 
 
 @app.post("/api/copilot/ask")
+@app.post("/copilot/ask")
 def ask_copilot(req: QueryRequest):
     """Answers user natural language questions via Cypher graph queries."""
     res = copilot_agent.answer_question(req.prompt)
@@ -111,6 +121,7 @@ class RawCypherRequest(BaseModel):
 
 
 @app.post("/api/cypher")
+@app.post("/cypher")
 def run_custom_cypher(req: RawCypherRequest):
     """Executes arbitrary Cypher queries directly on FalkorDB."""
     try:

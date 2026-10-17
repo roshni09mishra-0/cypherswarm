@@ -72,12 +72,15 @@ Mobile apps should direct users to legacy login:
 
 def populate_mock_files(base_dir: str):
     """Writes the mock repository documentation files to disk."""
-    for rel_path, content in SAMPLE_DOCS.items():
-        abs_path = os.path.join(base_dir, rel_path)
-        os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-        with open(abs_path, "w", encoding="utf-8") as f:
-            f.write(content)
-    print(f"📁 Mock documentation files generated in: {base_dir}")
+    try:
+        for rel_path, content in SAMPLE_DOCS.items():
+            abs_path = os.path.join(base_dir, rel_path)
+            os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+            with open(abs_path, "w", encoding="utf-8") as f:
+                f.write(content)
+        print(f"Mock documentation files generated in: {base_dir}")
+    except Exception as e:
+        print(f"Serverless environment Notice: {e}")
 
 
 def seed_company_brain(client: FalkorDBClient, workspace_dir: str):
